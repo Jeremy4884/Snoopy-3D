@@ -16,12 +16,15 @@
       user-select: none;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
       overflow: hidden;
+      position: fixed;
       font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif;
       background: linear-gradient(180deg, #7dbfcb 0%, #a4cfd4 40%, #e8bc99 75%, #f29c6b 100%);
-      width: 100vw;
-      height: 100vh;
+      touch-action: none;
+      overscroll-behavior: none;
     }
 
     #webgl-container {
@@ -31,6 +34,7 @@
       top: 0;
       left: 0;
       z-index: 1;
+      touch-action: none;
     }
 
     /* Floating Glassmorphism Dashboard */
@@ -40,16 +44,232 @@
       left: 24px;
       width: 320px;
       max-width: calc(100vw - 48px);
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.9);
       border-radius: 24px;
-      padding: 22px;
+      padding: 20px;
       box-shadow: 0 20px 45px rgba(26, 46, 68, 0.18), 0 2px 8px rgba(255, 255, 255, 0.6) inset;
-      z-index: 10;
+      z-index: 20;
       color: #1e293b;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+
+    .dashboard.collapsed {
+      transform: translateX(calc(-100% - 30px));
+      pointer-events: none;
+    }
+
+    .sheet-handle-bar {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .sheet-handle {
+      width: 44px;
+      height: 5px;
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .btn-close-dashboard {
+      margin-left: auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(241, 245, 249, 0.9);
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-close-dashboard:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      transform: scale(1.08);
+    }
+
+    .btn-dismiss-sheet {
+      display: none;
+      width: 100%;
+      margin-top: 14px;
+      padding: 11px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .btn-dismiss-sheet:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    /* Desktop Reopen Trigger */
+    .desktop-reopen-btn {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px 8px 10px;
+      background: rgba(255, 255, 255, 0.90);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.95);
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(26, 46, 68, 0.16);
+      z-index: 15;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #0f172a;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .desktop-reopen-btn:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(26, 46, 68, 0.22);
+    }
+
+    .dashboard.collapsed ~ .desktop-reopen-btn {
+      display: flex;
+    }
+
+    /* Mobile Backdrop */
+    .dashboard-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 18;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .dashboard-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Mobile Bottom Floating Bar */
+    .mobile-bottom-bar {
+      display: none;
+      position: absolute;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      gap: 12px;
+      align-items: center;
+      max-width: calc(100vw - 32px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .btn-mobile-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px 8px 10px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.95);
+      border-radius: 30px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.22), 0 2px 6px rgba(255, 255, 255, 0.8) inset;
+      cursor: pointer;
+      color: #0f172a;
+      font-family: inherit;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-mobile-pill:active {
+      transform: scale(0.96);
+    }
+
+    .pill-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #ef4444;
+      object-fit: contain;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .pill-title {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    .pill-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .btn-mobile-woodstock {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #f59e0b;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .btn-mobile-woodstock img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      transform: scale(1.15) translateY(1px);
+    }
+
+    .btn-mobile-woodstock:active {
+      transform: scale(0.92);
+    }
+
+    .btn-mobile-woodstock.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #d97706;
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.75);
     }
 
     .brand {
@@ -453,13 +673,74 @@
       100% { height: 14px; }
     }
 
-    @media (max-width: 720px) {
-      .music-widget {
+    @media (max-width: 768px) {
+      .dashboard {
         top: auto;
-        bottom: 24px;
-        right: 24px;
-        left: 24px;
-        max-width: none;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 28px 28px 0 0;
+        padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+        max-height: 80vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        transform: translateY(0);
+        box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.25);
+      }
+
+      .dashboard.collapsed {
+        transform: translateY(115%);
+        pointer-events: none;
+      }
+
+      .sheet-handle-bar {
+        display: flex;
+      }
+
+      .btn-dismiss-sheet {
+        display: block;
+      }
+
+      .desktop-reopen-btn {
+        display: none !important;
+      }
+
+      .mobile-bottom-bar {
+        display: flex;
+      }
+
+      .music-widget {
+        top: 16px;
+        right: 16px;
+        left: auto;
+        bottom: auto;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(26, 46, 68, 0.18);
+        background: rgba(255, 255, 255, 0.92);
+        border: 2px solid rgba(255, 255, 255, 0.95);
+      }
+
+      .music-widget .music-info {
+        display: none !important;
+      }
+
+      .music-widget .vinyl-disc {
+        width: 40px;
+        height: 40px;
+      }
+
+      .music-widget .vinyl-art {
+        width: 20px;
+        height: 20px;
       }
     }
 
@@ -499,8 +780,11 @@
     <p style="font-size: 0.85rem; opacity: 0.85; margin-top: 4px;">Preparing 3D Vinyl Character & Animations</p>
   </div>
 
-  <!-- Interactive Control Panel -->
+  <!-- Interactive Control Panel (Collapsible Bottom Sheet on Mobile) -->
   <div class="dashboard">
+    <div class="sheet-handle-bar" onclick="window.toggleDashboard(false)">
+      <div class="sheet-handle"></div>
+    </div>
     <div class="brand">
       <div class="avatar">
         <img src="snoopy_avatar.png" alt="Snoopy" class="avatar-img">
@@ -512,6 +796,7 @@
           <span id="active-action-label">Walk (กำลังเล่น)</span>
         </div>
       </div>
+      <button class="btn-close-dashboard" onclick="window.toggleDashboard(false)" aria-label="ย่อแผงควบคุม" title="ย่อแผงควบคุม">✕</button>
     </div>
 
     <div class="section-label">เลือกท่าทาง (Animation Actions)</div>
@@ -555,14 +840,37 @@
 
     <div class="helper-hints">
       💡 <b>การควบคุม:</b><br>
-      • คลิกซ้าย + ลาก = หมุน 360°<br>
-      • คลิกขวา + ลาก = เลื่อนมุมมอง<br>
-      • หมุน Scroll เมาส์ = ซูมเข้า/ออก
+      • ใช้นิ้วเลื่อน / คลิกซ้ายลาก = หมุน 360°<br>
+      • ใช้สองนิ้วขยาย / Scroll = ซูมเข้า/ออก
     </div>
+
+    <button class="btn-dismiss-sheet" onclick="window.toggleDashboard(false)">
+      ✕ ซ่อนแผงควบคุม (ดูโมเดล 3D เต็มจอ)
+    </button>
+  </div>
+
+  <!-- Desktop Reopen Button -->
+  <button class="desktop-reopen-btn" onclick="window.toggleDashboard(true)">
+    <img src="snoopy_avatar.png" class="pill-avatar" alt="Snoopy" style="width:26px;height:26px;">
+    <span>เปิดแผงควบคุม</span>
+  </button>
+
+  <!-- Mobile Backdrop & Floating Bar -->
+  <div class="dashboard-backdrop" id="dashboard-backdrop" onclick="window.toggleDashboard(false)"></div>
+
+  <div class="mobile-bottom-bar" id="mobile-bottom-bar">
+    <button class="btn-mobile-pill" onclick="window.toggleDashboard(true)">
+      <img src="snoopy_avatar.png" class="pill-avatar" alt="Snoopy">
+      <span class="pill-title">เมนูควบคุม</span>
+      <span class="pill-badge" id="mobile-action-tag">🚶 Walk</span>
+    </button>
+    <button class="btn-mobile-woodstock" onclick="window.toggleWoodstock()" id="btn-mobile-woodstock" title="Woodstock">
+      <img src="woodstock_icon_big.png" alt="Woodstock">
+    </button>
   </div>
 
   <!-- Floating YouTube Music Player (Top-Right) -->
-  <div class="music-widget">
+  <div class="music-widget" onclick="if(window.innerWidth<=768) window.toggleMusic()" title="Linus and Lucy (คลิกเพื่อเล่น/หยุดเพลง)">
     <div class="vinyl-disc" id="vinyl-disc">
       <img src="snoopy_avatar.png" class="vinyl-art" alt="Snoopy Linus and Lucy">
       <div class="vinyl-hole"></div>
@@ -613,9 +921,14 @@
       // 1. Scene
       scene = new THREE.Scene();
 
-      // 2. Camera
-      camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 50);
-      camera.position.set(2.4, 1.3, 3.6);
+      // 2. Camera (Adaptive FOV for Mobile & Desktop)
+      const isPortrait = window.innerWidth < window.innerHeight;
+      camera = new THREE.PerspectiveCamera(isPortrait ? 46 : 38, window.innerWidth / window.innerHeight, 0.1, 50);
+      if (isPortrait) {
+        camera.position.set(2.6, 1.35, 4.2);
+      } else {
+        camera.position.set(2.4, 1.3, 3.6);
+      }
 
       // 3. Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -764,25 +1077,64 @@
         (err) => console.warn('Woodstock load notice:', err)
       );
 
+      // On mobile screens, collapse dashboard by default so Snoopy is in full view
+      if (window.innerWidth <= 768) {
+        const dash = document.querySelector('.dashboard');
+        if (dash) dash.classList.add('collapsed');
+      }
+
       window.addEventListener('resize', onWindowResize, false);
     }
 
     function onWindowResize() {
+      const isPortrait = window.innerWidth < window.innerHeight;
       camera.aspect = window.innerWidth / window.innerHeight;
+      camera.fov = isPortrait ? 46 : 38;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    // Toggle Dashboard open/close
+    window.toggleDashboard = function(forceOpen) {
+      const dashboard = document.querySelector('.dashboard');
+      const backdrop = document.getElementById('dashboard-backdrop');
+      if (!dashboard) return;
+      const isMobile = window.innerWidth <= 768;
+
+      if (forceOpen !== undefined) {
+        if (forceOpen) {
+          dashboard.classList.remove('collapsed');
+          if (backdrop && isMobile) backdrop.classList.add('active');
+        } else {
+          dashboard.classList.add('collapsed');
+          if (backdrop) backdrop.classList.remove('active');
+        }
+      } else {
+        dashboard.classList.toggle('collapsed');
+        const isCollapsed = dashboard.classList.contains('collapsed');
+        if (backdrop && isMobile) {
+          backdrop.classList.toggle('active', !isCollapsed);
+        }
+      }
+    };
+
     // Expose control functions to global window
     window.switchAction = function(name, btn) {
       document.querySelectorAll('.btn-action').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+      const targetBtn = btn || document.getElementById('btn-' + name.toLowerCase());
+      if (targetBtn) targetBtn.classList.add('active');
 
       const action = actions[name];
       if (!action || action === activeAction) return;
 
       const badge = document.getElementById('active-action-label');
       if (badge) badge.innerText = `${name} (กำลังเล่น)`;
+
+      const mobileTag = document.getElementById('mobile-action-tag');
+      if (mobileTag) {
+        const iconMap = { 'Walk': '🚶 Walk', 'Wave': '👋 Wave', 'Jump': '🦘 Jump' };
+        mobileTag.innerText = iconMap[name] || name;
+      }
 
       action.reset();
       action.fadeIn(0.35);
@@ -803,12 +1155,14 @@
     };
 
     window.setCamera = function(type) {
+      const isPortrait = window.innerWidth < window.innerHeight;
+      const d = isPortrait ? 1.2 : 1.0;
       if (type === 'perspective') {
-        camera.position.set(2.4, 1.3, 3.6);
+        camera.position.set(2.4 * d, 1.3, 3.6 * d);
       } else if (type === 'front') {
-        camera.position.set(0, 1.1, 4.0);
+        camera.position.set(0, 1.1, 4.0 * d);
       } else if (type === 'side') {
-        camera.position.set(3.8, 1.1, 0);
+        camera.position.set(3.8 * d, 1.1, 0);
       }
       controls.target.set(0, 0.95, 0);
       controls.update();
@@ -821,16 +1175,19 @@
 
       const btn = document.getElementById('btn-woodstock');
       const btnText = document.getElementById('woodstock-btn-text');
+      const mobileBtn = document.getElementById('btn-mobile-woodstock');
 
       if (woodstockSpawned) {
         woodstockModel.visible = true;
         woodstockTargetScale = 1.0;
         woodstockModel.position.set(0.80, 1.85, 0.35); // Swoop in gracefully from above!
         if (btn) btn.classList.add('active');
+        if (mobileBtn) mobileBtn.classList.add('active');
         if (btnText) btnText.innerText = 'ส่ง Woodstock พักผ่อน';
       } else {
         woodstockTargetScale = 0.0;
         if (btn) btn.classList.remove('active');
+        if (mobileBtn) mobileBtn.classList.remove('active');
         if (btnText) btnText.innerText = 'เสก Woodstock ออกมา!';
       }
     };
