@@ -1,0 +1,27 @@
+# Temporary renders & QC test images
+qc_*.png*
+test_*.png*
+preview_*.png*
+final_qc_*.png*
+front_ik*.png
+persp_ik*.png
+pose*.png
+crop_*.png
+exact_*.png
+feather_*.png
+annotated_*.png
+user_*.png
+sketchfab_*.jpeg
+*.zip
+
+# Blender backup files
+*.blend1
+*.blend@
+
+# Python cache & logs
+__pycache__/
+*.log
+
+# Portable Git folder
+mingit/
+git_release.json

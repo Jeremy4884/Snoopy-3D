@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snoopy 3D - Interactive Web Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif;
+      background: linear-gradient(180deg, #7dbfcb 0%, #a4cfd4 40%, #e8bc99 75%, #f29c6b 100%);
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #webgl-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Floating Glassmorphism Dashboard */
+    .dashboard {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      width: 320px;
+      max-width: calc(100vw - 48px);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 20px 45px rgba(26, 46, 68, 0.18), 0 2px 8px rgba(255, 255, 255, 0.6) inset;
+      z-index: 10;
+      color: #1e293b;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 2px solid #ef4444;
+      overflow: hidden;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .brand-title h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #0f172a;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #059669;
+      background: rgba(16, 185, 129, 0.12);
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-top: 2px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.4); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #64748b;
+      margin: 16px 0 8px 0;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .btn-action {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      border-radius: 14px;
+      background: #ffffff;
+      color: #334155;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    .btn-action .icon {
+      font-size: 1.25rem;
+    }
+
+    .btn-action:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+    }
+
+    .btn-action.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .slider-row {
+      margin-top: 14px;
+      background: rgba(255, 255, 255, 0.65);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #0f172a;
+      cursor: pointer;
+    }
+
+    .cam-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn-mini {
+      padding: 6px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 10px;
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-mini:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .btn-woodstock {
+      margin-top: 8px;
+      width: 100%;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #fbbf24;
+      color: #78350f;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 8px 16px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-woodstock:hover {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+      border-color: #f59e0b;
+    }
+
+    .btn-woodstock.active {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border-color: #d97706;
+      color: #451a03;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    }
+
+    .woodstock-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2.5px solid #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(180, 83, 9, 0.22);
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+
+    .woodstock-btn-icon {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      transform: scale(1.15) translateY(1px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-woodstock:hover .woodstock-badge {
+      transform: scale(1.10) rotate(-6deg);
+      box-shadow: 0 4px 12px rgba(180, 83, 9, 0.32);
+    }
+
+    .btn-woodstock:hover .woodstock-btn-icon {
+      transform: scale(1.28) translateY(1px);
+    }
+
+    .btn-woodstock.active .woodstock-badge {
+      background: #fffbeb;
+      border-color: #b45309;
+      transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    }
+
+    .helper-hints {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(203, 213, 225, 0.8);
+      font-size: 0.72rem;
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    /* Loading Overlay */
+    #loading-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #7dbfcb 0%, #f29c6b 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      transition: opacity 0.5s ease;
+      color: #ffffff;
+    }
+
+    /* Floating YouTube Music Player (Top-Right) */
+    .music-widget {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 12px 18px;
+      box-shadow: 0 20px 45px rgba(26, 46, 68, 0.16), 0 2px 8px rgba(255, 255, 255, 0.6) inset;
+      z-index: 10;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      max-width: 330px;
+      transition: all 0.3s ease;
+    }
+
+    .vinyl-disc {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+      border: 2px solid #374151;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .vinyl-disc.playing {
+      animation: spinVinyl 3.5s linear infinite;
+    }
+
+    .vinyl-art {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: #ffffff;
+      border: 1px solid #ef4444;
+      padding: 1px;
+    }
+
+    .vinyl-hole {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #111827;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .music-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .music-header {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .music-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-badge {
+      font-size: 0.70rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .music-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .btn-music {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #0f172a;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-music:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    .sound-wave {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 14px;
+    }
+
+    .sound-wave span {
+      width: 2.5px;
+      height: 4px;
+      background: #10b981;
+      border-radius: 1px;
+      transition: height 0.2s ease;
+    }
+
+    .sound-wave.active span:nth-child(1) { animation: soundBar 0.6s ease infinite alternate; }
+    .sound-wave.active span:nth-child(2) { animation: soundBar 0.8s ease 0.2s infinite alternate; }
+    .sound-wave.active span:nth-child(3) { animation: soundBar 0.5s ease 0.4s infinite alternate; }
+    .sound-wave.active span:nth-child(4) { animation: soundBar 0.7s ease 0.1s infinite alternate; }
+
+    @keyframes soundBar {
+      0% { height: 3px; }
+      100% { height: 14px; }
+    }
+
+    @media (max-width: 720px) {
+      .music-widget {
+        top: auto;
+        bottom: 24px;
+        right: 24px;
+        left: 24px;
+        max-width: none;
+      }
+    }
+
+    .spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <!-- Modern Import Map for Three.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <!-- YouTube IFrame Player API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="spinner"></div>
+    <h2 style="font-weight: 700; letter-spacing: -0.5px;">กำลังโหลด Snoopy 3D...</h2>
+    <p style="font-size: 0.85rem; opacity: 0.85; margin-top: 4px;">Preparing 3D Vinyl Character & Animations</p>
+  </div>
+
+  <!-- Interactive Control Panel -->
+  <div class="dashboard">
+    <div class="brand">
+      <div class="avatar">
+        <img src="snoopy_avatar.png" alt="Snoopy" class="avatar-img">
+      </div>
+      <div class="brand-title">
+        <h1>Snoopy 3D Studio</h1>
+        <div class="status-badge">
+          <span class="pulse-dot"></span>
+          <span id="active-action-label">Walk (กำลังเล่น)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">เลือกท่าทาง (Animation Actions)</div>
+    <div class="action-grid">
+      <button class="btn-action active" id="btn-walk" onclick="window.switchAction('Walk', this)">
+        <span class="icon">🚶</span>
+        <span>Walk (เดินดุ๊กดิ๊ก)</span>
+      </button>
+      <button class="btn-action" id="btn-wave" onclick="window.switchAction('Wave', this)">
+        <span class="icon">👋</span>
+        <span>Wave (โบกมือบ๊ายบาย)</span>
+      </button>
+      <button class="btn-action" id="btn-jump" onclick="window.switchAction('Jump', this)">
+        <span class="icon">🦘</span>
+        <span>Jump (กระโดดตบ)</span>
+      </button>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span>ความเร็วอนิเมชัน</span>
+        <span id="speed-val">1.0x</span>
+      </div>
+      <input type="range" id="speed-slider" min="0.2" max="2.2" step="0.1" value="1.0" oninput="window.changeSpeed(this.value)">
+    </div>
+
+    <div class="section-label">มุมกล้อง (Camera Presets)</div>
+    <div class="cam-presets">
+      <button class="btn-mini" onclick="window.setCamera('perspective')">Perspective</button>
+      <button class="btn-mini" onclick="window.setCamera('front')">ด้านหน้า</button>
+      <button class="btn-mini" onclick="window.setCamera('side')">ด้านข้าง</button>
+    </div>
+
+    <div class="section-label" style="margin-top: 14px;">เพื่อนซี้คู่ใจ (Best Friend)</div>
+    <button class="btn-woodstock" id="btn-woodstock" onclick="window.toggleWoodstock()">
+      <div class="woodstock-badge">
+        <img src="woodstock_icon_big.png" class="woodstock-btn-icon" alt="Woodstock" id="woodstock-btn-img">
+      </div>
+      <span id="woodstock-btn-text">เสก Woodstock ออกมา!</span>
+    </button>
+
+    <div class="helper-hints">
+      💡 <b>การควบคุม:</b><br>
+      • คลิกซ้าย + ลาก = หมุน 360°<br>
+      • คลิกขวา + ลาก = เลื่อนมุมมอง<br>
+      • หมุน Scroll เมาส์ = ซูมเข้า/ออก
+    </div>
+  </div>
+
+  <!-- Floating YouTube Music Player (Top-Right) -->
+  <div class="music-widget">
+    <div class="vinyl-disc" id="vinyl-disc">
+      <img src="snoopy_avatar.png" class="vinyl-art" alt="Snoopy Linus and Lucy">
+      <div class="vinyl-hole"></div>
+    </div>
+    <div class="music-info">
+      <div class="music-header">
+        <span class="music-title">Linus and Lucy 🎹</span>
+        <span class="music-badge">Vince Guaraldi Trio • Peanuts</span>
+      </div>
+      <div class="music-actions">
+        <button class="btn-music" id="btn-music-toggle" onclick="window.toggleMusic()">
+          <span id="music-btn-icon">▶</span>
+          <span id="music-btn-text">เล่นเพลง</span>
+        </button>
+        <div class="sound-wave" id="sound-wave">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden YouTube Player Container -->
+  <div id="yt-player-container" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; bottom: 0; right: 0;"></div>
+
+  <!-- 3D Canvas Container -->
+  <div id="webgl-container"></div>
+
+  <!-- Three.js App Logic (Module) -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    let scene, camera, renderer, controls, mixer, clock;
+    let actions = {};
+    let activeAction = null;
+    let snoopyModel = null;
+    let woodstockModel = null;
+    let woodstockMixer = null;
+    let woodstockSpawned = false;
+    let woodstockTargetScale = 0;
+    let currentWoodstockScale = 0;
+
+    function init() {
+      const container = document.getElementById('webgl-container');
+      clock = new THREE.Clock();
+
+      // 1. Scene
+      scene = new THREE.Scene();
+
+      // 2. Camera
+      camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 50);
+      camera.position.set(2.4, 1.3, 3.6);
+
+      // 3. Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.appendChild(renderer.domElement);
+
+      // 4. OrbitControls
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxPolarAngle = Math.PI / 2 + 0.05;
+      controls.minDistance = 1.5;
+      controls.maxDistance = 8.0;
+      controls.target.set(0, 0.95, 0);
+
+      // 5. Studio Lighting matching Reference Photo
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      // Sky Teal & Ground Warm Peach Bounce (Hemisphere)
+      const hemiLight = new THREE.HemisphereLight(0x7dbfcb, 0xf29c6b, 0.85);
+      scene.add(hemiLight);
+
+      // Main Sun Key Light
+      const sunLight = new THREE.DirectionalLight(0xfff5ea, 2.2);
+      sunLight.position.set(4, 7, 5);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 2048;
+      sunLight.shadow.mapSize.height = 2048;
+      sunLight.shadow.camera.near = 0.5;
+      sunLight.shadow.camera.far = 25;
+      sunLight.shadow.bias = -0.0001;
+      const d = 2.5;
+      sunLight.shadow.camera.left = -d;
+      sunLight.shadow.camera.right = d;
+      sunLight.shadow.camera.top = d;
+      sunLight.shadow.camera.bottom = -d;
+      scene.add(sunLight);
+
+      // Soft Back/Rim Light
+      const rimLight = new THREE.DirectionalLight(0xa5f3fc, 1.2);
+      rimLight.position.set(-4, 3, -4);
+      scene.add(rimLight);
+
+      // Floor Contact Shadow
+      const shadowPlaneGeo = new THREE.PlaneGeometry(6, 6);
+      const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.22 });
+      const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+      shadowPlane.rotation.x = -Math.PI / 2;
+      shadowPlane.position.y = 0.0;
+      shadowPlane.receiveShadow = true;
+      scene.add(shadowPlane);
+
+      // 6. Load GLTF / GLB Model
+      const loader = new GLTFLoader();
+      loader.load(
+        'snoopy.glb',
+        (gltf) => {
+          snoopyModel = gltf.scene;
+
+          snoopyModel.traverse((node) => {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+              if (node.material) {
+                node.material.roughness = Math.max(node.material.roughness, 0.25);
+              }
+            }
+          });
+
+          scene.add(snoopyModel);
+
+          // Setup Animations
+          if (gltf.animations && gltf.animations.length) {
+            mixer = new THREE.AnimationMixer(snoopyModel);
+            gltf.animations.forEach((clip) => {
+              const action = mixer.clipAction(clip);
+              actions[clip.name] = action;
+            });
+
+            // Start with Walk by default
+            const defaultClip = actions['Walk'] || Object.values(actions)[0];
+            if (defaultClip) {
+              activeAction = defaultClip;
+              activeAction.play();
+            }
+          }
+
+          // Hide Loading Screen
+          const loaderElem = document.getElementById('loading-screen');
+          if (loaderElem) {
+            loaderElem.style.opacity = '0';
+            setTimeout(() => loaderElem.style.display = 'none', 500);
+          }
+        },
+        undefined,
+        (error) => {
+          console.error('Error loading GLTF:', error);
+          const loaderElem = document.getElementById('loading-screen');
+          if (loaderElem) {
+            loaderElem.innerHTML = `
+              <div style="text-align: center; padding: 24px; max-width: 420px;">
+                <h2 style="color: #ef4444; margin-bottom: 8px;">ไม่สามารถโหลด snoopy.glb ได้</h2>
+                <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 14px;">กรุณาเปิดไฟล์ผ่าน <b>start_web.bat</b> แทนการดับเบิลคลิกเปิดตรงๆ เพื่อป้องกันปัญหา Security (CORS) ของ Browser ครับ</p>
+                <div style="font-size: 0.75rem; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; text-align: left;">${error}</div>
+              </div>
+            `;
+          }
+        }
+      );
+
+      // 7. Load Woodstock Companion Model
+      loader.load(
+        'woodstock.glb',
+        (gltf) => {
+          woodstockModel = gltf.scene;
+          woodstockModel.scale.set(0, 0, 0);
+          woodstockModel.position.set(0.80, 1.35, 0.35);
+          woodstockModel.visible = false;
+
+          woodstockModel.traverse((node) => {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+              if (node.material) {
+                node.material.roughness = Math.max(node.material.roughness, 0.25);
+              }
+            }
+          });
+
+          scene.add(woodstockModel);
+
+          if (gltf.animations && gltf.animations.length) {
+            woodstockMixer = new THREE.AnimationMixer(woodstockModel);
+            const flyClip = gltf.animations.find(c => c.name === 'Woodstock_Fly') || gltf.animations[0];
+            const flyAction = woodstockMixer.clipAction(flyClip);
+            flyAction.play();
+          }
+        },
+        undefined,
+        (err) => console.warn('Woodstock load notice:', err)
+      );
+
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Expose control functions to global window
+    window.switchAction = function(name, btn) {
+      document.querySelectorAll('.btn-action').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const action = actions[name];
+      if (!action || action === activeAction) return;
+
+      const badge = document.getElementById('active-action-label');
+      if (badge) badge.innerText = `${name} (กำลังเล่น)`;
+
+      action.reset();
+      action.fadeIn(0.35);
+      action.play();
+
+      if (activeAction) {
+        activeAction.fadeOut(0.35);
+      }
+      activeAction = action;
+    };
+
+    window.changeSpeed = function(val) {
+      const label = document.getElementById('speed-val');
+      if (label) label.innerText = val + 'x';
+      if (mixer) {
+        mixer.timeScale = parseFloat(val);
+      }
+    };
+
+    window.setCamera = function(type) {
+      if (type === 'perspective') {
+        camera.position.set(2.4, 1.3, 3.6);
+      } else if (type === 'front') {
+        camera.position.set(0, 1.1, 4.0);
+      } else if (type === 'side') {
+        camera.position.set(3.8, 1.1, 0);
+      }
+      controls.target.set(0, 0.95, 0);
+      controls.update();
+    };
+
+    // Woodstock Toggle Controller
+    window.toggleWoodstock = function() {
+      if (!woodstockModel) return;
+      woodstockSpawned = !woodstockSpawned;
+
+      const btn = document.getElementById('btn-woodstock');
+      const btnText = document.getElementById('woodstock-btn-text');
+
+      if (woodstockSpawned) {
+        woodstockModel.visible = true;
+        woodstockTargetScale = 1.0;
+        woodstockModel.position.set(0.80, 1.85, 0.35); // Swoop in gracefully from above!
+        if (btn) btn.classList.add('active');
+        if (btnText) btnText.innerText = 'ส่ง Woodstock พักผ่อน';
+      } else {
+        woodstockTargetScale = 0.0;
+        if (btn) btn.classList.remove('active');
+        if (btnText) btnText.innerText = 'เสก Woodstock ออกมา!';
+      }
+    };
+
+    // YouTube Audio Player Controller (Linus and Lucy)
+    let ytPlayer = null;
+    let isMusicPlaying = false;
+
+    window.onYouTubeIframeAPIReady = function() {
+      ytPlayer = new YT.Player('yt-player-container', {
+        height: '0',
+        width: '0',
+        videoId: 'XWnEj9YwKVY',
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: 'XWnEj9YwKVY',
+          playsinline: 1,
+        },
+        events: {
+          onReady: (event) => {
+            // Attempt autoplay
+            event.target.playVideo();
+          },
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.PLAYING) {
+              updateMusicUI(true);
+            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+              updateMusicUI(false);
+            }
+          }
+        }
+      });
+    };
+
+    function updateMusicUI(playing) {
+      isMusicPlaying = playing;
+      const vinyl = document.getElementById('vinyl-disc');
+      const wave = document.getElementById('sound-wave');
+      const icon = document.getElementById('music-btn-icon');
+      const text = document.getElementById('music-btn-text');
+
+      if (playing) {
+        if (vinyl) vinyl.classList.add('playing');
+        if (wave) wave.classList.add('active');
+        if (icon) icon.innerText = '⏸';
+        if (text) text.innerText = 'พักเพลง';
+      } else {
+        if (vinyl) vinyl.classList.remove('playing');
+        if (wave) wave.classList.remove('active');
+        if (icon) icon.innerText = '▶';
+        if (text) text.innerText = 'เล่นเพลง';
+      }
+    }
+
+    window.toggleMusic = function() {
+      if (!ytPlayer) return;
+      try {
+        const state = ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          ytPlayer.pauseVideo();
+          updateMusicUI(false);
+        } else {
+          ytPlayer.unMute();
+          ytPlayer.playVideo();
+          updateMusicUI(true);
+        }
+      } catch (e) {
+        console.warn('YouTube Player not ready:', e);
+      }
+    };
+
+    // Auto-unmute & play on first user interaction (satisfies browser policy)
+    function setupAutoplayGesture() {
+      const triggerPlay = () => {
+        if (ytPlayer && typeof ytPlayer.playVideo === 'function' && !isMusicPlaying) {
+          try {
+            ytPlayer.unMute();
+            ytPlayer.playVideo();
+          } catch (e) {}
+        }
+        window.removeEventListener('pointerdown', triggerPlay);
+        window.removeEventListener('keydown', triggerPlay);
+      };
+      window.addEventListener('pointerdown', triggerPlay, { once: true });
+      window.addEventListener('keydown', triggerPlay, { once: true });
+    }
+    setupAutoplayGesture();
+
+    if (window.YT && window.YT.Player) {
+      window.onYouTubeIframeAPIReady();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock ? clock.getDelta() : 0;
+      if (mixer) mixer.update(delta);
+      if (woodstockMixer) woodstockMixer.update(delta);
+
+      // Smooth Spring Scaling & Organic Hovering Flight for Woodstock
+      if (woodstockModel) {
+        currentWoodstockScale += (woodstockTargetScale - currentWoodstockScale) * 0.12;
+        woodstockModel.scale.set(currentWoodstockScale, currentWoodstockScale, currentWoodstockScale);
+        if (currentWoodstockScale < 0.005 && !woodstockSpawned) {
+          woodstockModel.visible = false;
+        }
+
+        if (woodstockSpawned && woodstockModel.visible) {
+          const time = clock.getElapsedTime();
+          // Whimsical playful hover path beside Snoopy (to the right of Snoopy)
+          const targetX = 0.80 + Math.sin(time * 1.5) * 0.12;
+          const targetY = 1.35 + Math.sin(time * 3.0) * 0.08 + Math.cos(time * 1.2) * 0.04;
+          const targetZ = 0.35 + Math.cos(time * 1.5) * 0.10;
+
+          woodstockModel.position.x += (targetX - woodstockModel.position.x) * 0.08;
+          woodstockModel.position.y += (targetY - woodstockModel.position.y) * 0.08;
+          woodstockModel.position.z += (targetZ - woodstockModel.position.z) * 0.08;
+
+          // Cute rotation tilting towards camera and Snoopy
+          woodstockModel.rotation.y = -0.35 - Math.sin(time * 1.5) * 0.22;
+          woodstockModel.rotation.z = Math.sin(time * 3.0) * 0.08;
+        }
+      }
+
+      if (controls) controls.update();
+      if (renderer && scene && camera) renderer.render(scene, camera);
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
