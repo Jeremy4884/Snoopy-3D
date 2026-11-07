@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Snoopy 3D - Interactive Web Experience</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -548,11 +551,129 @@
       color: #ffffff;
     }
 
-    /* Floating YouTube Music Player (Top-Right) */
-    .music-widget {
+    /* Top Right Floating Toolbar (Halloween Disc + Music Player) */
+    .top-right-bar {
       position: absolute;
       top: 24px;
       right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    /* Circular Halloween Disc Button (Resembles an authentic vinyl record) */
+    .halloween-disc-btn {
+      position: relative;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      flex-shrink: 0;
+    }
+
+    .halloween-disc-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .halloween-disc-btn:active {
+      transform: scale(0.94);
+    }
+
+    .halloween-vinyl {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      /* Authentic concentric vinyl grooves pattern with dark purple-black luster */
+      background: 
+        radial-gradient(circle at center, #241432 0%, #150a24 35%, #0d0418 70%, #06020a 100%),
+        repeating-radial-gradient(circle at center, transparent 0, transparent 2px, rgba(255, 255, 255, 0.055) 3px, transparent 4px);
+      border: 2px solid rgba(249, 115, 22, 0.65);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.38), 0 0 14px rgba(249, 115, 22, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.35s ease;
+    }
+
+    .halloween-disc-btn:hover .halloween-vinyl {
+      border-color: #f97316;
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.65), 0 0 22px rgba(168, 85, 247, 0.55);
+    }
+
+    .halloween-vinyl.playing {
+      animation: spinVinyl 3.5s linear infinite;
+    }
+
+    /* Center record label */
+    .vinyl-label-center {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .halloween-disc-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+      transition: transform 0.3s ease;
+    }
+
+    .vinyl-spindle-hole {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #090212;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+    }
+
+    /* Floating Tooltip */
+    .halloween-tooltip {
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      z-index: 20;
+    }
+
+    .halloween-disc-btn:hover .halloween-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Floating YouTube Music Player (Inside .top-right-bar) */
+    .music-widget {
+      position: relative;
       background: rgba(255, 255, 255, 0.86);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -739,13 +860,42 @@
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
       }
 
-      .music-widget {
+      .top-right-bar {
         top: 16px;
         right: 16px;
+        gap: 10px;
+      }
+
+      .halloween-disc-btn {
+        width: 44px;
+        height: 44px;
+      }
+
+      .halloween-vinyl {
+        width: 42px;
+        height: 42px;
+      }
+
+      .vinyl-label-center {
+        width: 21px;
+        height: 21px;
+      }
+
+      .halloween-disc-icon {
+        font-size: 0.78rem;
+      }
+
+      .halloween-tooltip {
+        display: none !important;
+      }
+
+      .music-widget {
+        top: auto;
+        right: auto;
         left: auto;
         bottom: auto;
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
         padding: 0;
         border-radius: 50%;
         display: flex;
@@ -762,13 +912,13 @@
       }
 
       .music-widget .vinyl-disc {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
       }
 
       .music-widget .vinyl-art {
-        width: 20px;
-        height: 20px;
+        width: 19px;
+        height: 19px;
       }
     }
 
@@ -985,28 +1135,22 @@
       color: #f1f5f9;
     }
 
-    /* Card active in halloween mode */
-    body.halloween-mode .halloween-card {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.35) 0%, rgba(249, 115, 22, 0.4) 100%);
+    /* Halloween Vinyl Disc Active Glow */
+    body.halloween-mode .halloween-vinyl {
       border-color: #f97316;
-      box-shadow: 0 0 20px rgba(249, 115, 22, 0.35);
+      box-shadow: 0 0 22px rgba(249, 115, 22, 0.85), 0 0 35px rgba(168, 85, 247, 0.7);
     }
 
-    body.halloween-mode .halloween-title {
-      color: #ffffff;
+    body.halloween-mode .vinyl-label-center {
+      background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+      border-color: #f97316;
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.7);
     }
 
-    body.halloween-mode .halloween-subtitle {
+    body.halloween-mode .halloween-tooltip {
+      background: rgba(30, 10, 48, 0.95);
+      border-color: #a855f7;
       color: #fde047;
-    }
-
-    body.halloween-mode .halloween-switch {
-      background: linear-gradient(90deg, #7c3aed, #f97316);
-      box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
-    }
-
-    body.halloween-mode .switch-knob {
-      transform: translateX(20px);
     }
 
     /* Music Widget Halloween Styling */
@@ -1120,20 +1264,6 @@
       <button class="btn-close-dashboard" onclick="window.toggleDashboard(false)" aria-label="ย่อแผงควบคุม" title="ย่อแผงควบคุม">✕</button>
     </div>
 
-    <!-- Halloween Mode Special Toggle -->
-    <div class="halloween-card" id="halloween-card" onclick="window.toggleHalloweenMode()" title="คลิกเพื่อสลับระหว่างโหมดปกติ และโหมด Halloween">
-      <div class="halloween-icon-box" id="halloween-icon-box">
-        <span class="halloween-emoji" id="halloween-emoji">🎃</span>
-      </div>
-      <div class="halloween-info">
-        <div class="halloween-title" id="halloween-title">Halloween Mode <span style="font-size:0.68rem;background:#f97316;color:#fff;padding:1px 6px;border-radius:10px;font-weight:700;">New!</span></div>
-        <div class="halloween-subtitle" id="halloween-sub">แปลงร่างเป็น Vampire Snoopy 🧛</div>
-      </div>
-      <div class="halloween-switch" id="halloween-switch">
-        <div class="switch-knob"></div>
-      </div>
-    </div>
-
     <div class="section-label">เลือกท่าทาง (Animation Actions)</div>
     <div class="action-grid">
       <button class="btn-action active" id="btn-walk" onclick="window.switchAction('Walk', this)">
@@ -1212,24 +1342,38 @@
     Disclaimer: This website is a non-commercial, fan-made project created solely for educational and research purposes. All characters, names, images, and related indicia of Snoopy and WoodStock are trademarks and registered copyrights of Peanuts Worldwide LLC. No copyright infringement is intended.
   </div>
 
-  <!-- Floating YouTube Music Player (Top-Right) -->
-  <div class="music-widget" onclick="if(window.innerWidth<=768) window.toggleMusic()" title="Linus and Lucy (คลิกเพื่อเล่น/หยุดเพลง)">
-    <div class="vinyl-disc" id="vinyl-disc">
-      <img src="snoopy_avatar.png" class="vinyl-art" alt="Snoopy Linus and Lucy">
-      <div class="vinyl-hole"></div>
-    </div>
-    <div class="music-info">
-      <div class="music-header">
-        <span class="music-title">Linus and Lucy 🎹</span>
-        <span class="music-badge">Vince Guaraldi Trio • Peanuts</span>
+  <!-- Top Right Floating Controls (Halloween Mode Disc & Music Player) -->
+  <div class="top-right-bar">
+    <!-- Halloween Mode Circular Vinyl Disc Button -->
+    <button class="halloween-disc-btn" id="btn-halloween-disc" onclick="window.toggleHalloweenMode()" title="Halloween Mode 🎃 (คลิกเพื่อแปลงร่างแวมไพร์)" aria-label="Halloween Mode">
+      <div class="halloween-vinyl" id="halloween-vinyl">
+        <div class="vinyl-label-center">
+          <span class="halloween-disc-icon" id="halloween-disc-icon">🎃</span>
+        </div>
+        <div class="vinyl-spindle-hole"></div>
       </div>
-      <div class="music-actions">
-        <button class="btn-music" id="btn-music-toggle" onclick="window.toggleMusic()">
-          <span id="music-btn-icon">▶</span>
-          <span id="music-btn-text">เล่นเพลง</span>
-        </button>
-        <div class="sound-wave" id="sound-wave">
-          <span></span><span></span><span></span><span></span>
+      <span class="halloween-tooltip" id="halloween-tooltip">Halloween Mode 🎃</span>
+    </button>
+
+    <!-- Floating YouTube Music Player -->
+    <div class="music-widget" onclick="if(window.innerWidth<=768) window.toggleMusic()" title="Linus and Lucy (คลิกเพื่อเล่น/หยุดเพลง)">
+      <div class="vinyl-disc" id="vinyl-disc">
+        <img src="snoopy_avatar.png" class="vinyl-art" id="vinyl-art-img" alt="Snoopy Linus and Lucy">
+        <div class="vinyl-hole"></div>
+      </div>
+      <div class="music-info">
+        <div class="music-header">
+          <span class="music-title">Linus and Lucy 🎹</span>
+          <span class="music-badge">Vince Guaraldi Trio • Peanuts</span>
+        </div>
+        <div class="music-actions">
+          <button class="btn-music" id="btn-music-toggle" onclick="window.toggleMusic()">
+            <span id="music-btn-icon">▶</span>
+            <span id="music-btn-text">เล่นเพลง</span>
+          </button>
+          <div class="sound-wave" id="sound-wave">
+            <span></span><span></span><span></span><span></span>
+          </div>
         </div>
       </div>
     </div>
@@ -1260,9 +1404,10 @@
     const mixers = { normal: null, vampire: null };
     const actionsMap = { normal: {}, vampire: {} };
 
-    // Woodstock companion
-    let woodstockModel = null;
-    let woodstockMixer = null;
+    // Woodstock companion models (Normal & Witch)
+    const woodstockModels = { normal: null, witch: null };
+    const woodstockMixers = { normal: null, witch: null };
+    let activeWoodstockKey = 'normal';
     let woodstockSpawned = false;
     let woodstockTargetScale = 0;
     let currentWoodstockScale = 0;
@@ -1425,27 +1570,53 @@
         );
       }
 
-      // 7. Load Woodstock Companion Model
+      // 7. Load Woodstock Companion Models (Normal & Witch)
       loader.load(
         'woodstock.glb',
         (gltf) => {
-          woodstockModel = gltf.scene;
-          woodstockModel.scale.set(0, 0, 0);
-          woodstockModel.position.set(0.80, 1.35, 0.35);
-          woodstockModel.visible = false;
-          configureModelMeshes(woodstockModel);
-          scene.add(woodstockModel);
+          woodstockModels.normal = gltf.scene;
+          woodstockModels.normal.scale.set(0, 0, 0);
+          woodstockModels.normal.position.set(0.80, 1.35, 0.35);
+          woodstockModels.normal.visible = false;
+          configureModelMeshes(woodstockModels.normal);
+          scene.add(woodstockModels.normal);
 
           if (gltf.animations && gltf.animations.length) {
-            woodstockMixer = new THREE.AnimationMixer(woodstockModel);
+            woodstockMixers.normal = new THREE.AnimationMixer(woodstockModels.normal);
             const flyClip = gltf.animations.find(c => c.name === 'Woodstock_Fly') || gltf.animations[0];
-            const flyAction = woodstockMixer.clipAction(flyClip);
+            const flyAction = woodstockMixers.normal.clipAction(flyClip);
             flyAction.play();
           }
+
+          // Preload Witch Woodstock
+          preloadWitchWoodstock();
         },
         undefined,
         (err) => console.warn('Woodstock load notice:', err)
       );
+
+      function preloadWitchWoodstock() {
+        loader.load(
+          'woodstock_witch.glb',
+          (gltf) => {
+            woodstockModels.witch = gltf.scene;
+            woodstockModels.witch.scale.set(0, 0, 0);
+            woodstockModels.witch.position.set(0.80, 1.35, 0.35);
+            woodstockModels.witch.visible = false;
+            configureModelMeshes(woodstockModels.witch);
+            scene.add(woodstockModels.witch);
+
+            if (gltf.animations && gltf.animations.length) {
+              woodstockMixers.witch = new THREE.AnimationMixer(woodstockModels.witch);
+              const witchClip = gltf.animations.find(c => c.name === 'Woodstock_Witch_Fly') || gltf.animations[0];
+              const witchAction = woodstockMixers.witch.clipAction(witchClip);
+              witchAction.play();
+            }
+          },
+          undefined,
+          (err) => console.warn('Witch Woodstock load notice:', err)
+        );
+      }
 
       // Mobile collapse by default
       if (window.innerWidth <= 768) {
@@ -1531,8 +1702,26 @@
         activeAction = newAction;
       }
 
+      // Switch active Woodstock companion model (Normal <-> Witch)
+      const nextWoodstockKey = isHalloween ? 'witch' : 'normal';
+      if (activeWoodstockKey !== nextWoodstockKey) {
+        const prevM = woodstockModels[activeWoodstockKey];
+        const nextM = woodstockModels[nextWoodstockKey];
+        activeWoodstockKey = nextWoodstockKey;
+        if (prevM && nextM) {
+          nextM.position.copy(prevM.position);
+          nextM.rotation.copy(prevM.rotation);
+          nextM.scale.copy(prevM.scale);
+          nextM.visible = prevM.visible;
+          prevM.visible = false;
+        }
+      }
+
       // Update UI Theme & Lighting
       updateHalloweenTheme(isHalloween);
+
+      // Switch YouTube Music Track (Normal <-> Halloween: Great Pumpkin Waltz)
+      switchMusicTrack(isHalloween);
     };
 
     function updateHalloweenTheme(active) {
@@ -1544,18 +1733,22 @@
       const btnJump = document.getElementById('btn-jump');
       const mobileTag = document.getElementById('mobile-action-tag');
       const woodstockBtnText = document.getElementById('woodstock-btn-text');
-      const halloweenTitle = document.getElementById('halloween-title');
-      const halloweenSub = document.getElementById('halloween-sub');
-      const halloweenEmoji = document.getElementById('halloween-emoji');
+      const halloweenVinyl = document.getElementById('halloween-vinyl');
+      const halloweenDiscIcon = document.getElementById('halloween-disc-icon');
+      const halloweenTooltip = document.getElementById('halloween-tooltip');
+      const halloweenDiscBtn = document.getElementById('btn-halloween-disc');
       const mobileHalloweenBtn = document.getElementById('btn-mobile-halloween');
 
       if (active) {
         body.classList.add('halloween-mode');
         if (brandH1) brandH1.innerText = 'Snoopy Halloween 🎃';
         if (activeLabel) activeLabel.innerText = `🧛 Vampire (${currentActionName})`;
-        if (halloweenTitle) halloweenTitle.innerHTML = 'Halloween Mode <span style="font-size:0.68rem;background:#10b981;color:#fff;padding:1px 6px;border-radius:10px;font-weight:700;">ON</span>';
-        if (halloweenSub) halloweenSub.innerText = 'คลิกเพื่อกลับสู่โหมดปกติ 🌕';
-        if (halloweenEmoji) halloweenEmoji.innerText = '🦇';
+        
+        // Update top-right circular Halloween Vinyl Disc
+        if (halloweenVinyl) halloweenVinyl.classList.add('playing');
+        if (halloweenDiscIcon) halloweenDiscIcon.innerText = '🦇';
+        if (halloweenTooltip) halloweenTooltip.innerText = 'กลับสู่โหมดปกติ 🌕';
+        if (halloweenDiscBtn) halloweenDiscBtn.setAttribute('title', 'Halloween Mode: ON 🦇 (คลิกเพื่อกลับสู่โหมดปกติ)');
         if (mobileHalloweenBtn) mobileHalloweenBtn.innerHTML = '<span>🦇</span>';
 
         // Spooky Buttons
@@ -1564,7 +1757,7 @@
         if (btnJump) btnJump.innerHTML = '<span class="icon">🦇</span><span>Vampire Flight (บินแวมไพร์)</span>';
 
         if (woodstockBtnText) {
-          woodstockBtnText.innerText = woodstockSpawned ? 'ส่ง Woodstock พักผ่อน' : 'เสก Woodstock ผีน้อย 👻';
+          woodstockBtnText.innerText = woodstockSpawned ? 'ส่งแม่มดน้อยพักผ่อน' : 'เสก Woodstock แม่มด 🧙‍♂️🧹';
         }
 
         const tagMap = { 'Walk': '🎃 Walk', 'Wave': '👻 Wave', 'Jump': '🦇 Flight' };
@@ -1588,9 +1781,12 @@
         body.classList.remove('halloween-mode');
         if (brandH1) brandH1.innerText = 'Snoopy 3D Studio';
         if (activeLabel) activeLabel.innerText = `${currentActionName} (กำลังเล่น)`;
-        if (halloweenTitle) halloweenTitle.innerHTML = 'Halloween Mode <span style="font-size:0.68rem;background:#f97316;color:#fff;padding:1px 6px;border-radius:10px;font-weight:700;">New!</span>';
-        if (halloweenSub) halloweenSub.innerText = 'แปลงร่างเป็น Vampire Snoopy 🧛';
-        if (halloweenEmoji) halloweenEmoji.innerText = '🎃';
+
+        // Update top-right circular Halloween Vinyl Disc
+        if (halloweenVinyl) halloweenVinyl.classList.remove('playing');
+        if (halloweenDiscIcon) halloweenDiscIcon.innerText = '🎃';
+        if (halloweenTooltip) halloweenTooltip.innerText = 'Halloween Mode 🎃';
+        if (halloweenDiscBtn) halloweenDiscBtn.setAttribute('title', 'Halloween Mode 🎃 (คลิกเพื่อแปลงร่างแวมไพร์)');
         if (mobileHalloweenBtn) mobileHalloweenBtn.innerHTML = '<span>🎃</span>';
 
         // Original Buttons
@@ -1684,7 +1880,8 @@
 
     // Woodstock Toggle Controller
     window.toggleWoodstock = function() {
-      if (!woodstockModel) return;
+      const curModel = woodstockModels[activeWoodstockKey] || woodstockModels.normal;
+      if (!curModel) return;
       woodstockSpawned = !woodstockSpawned;
 
       const btn = document.getElementById('btn-woodstock');
@@ -1692,46 +1889,56 @@
       const mobileBtn = document.getElementById('btn-mobile-woodstock');
 
       if (woodstockSpawned) {
-        woodstockModel.visible = true;
+        curModel.visible = true;
         woodstockTargetScale = 1.0;
-        woodstockModel.position.set(0.80, 1.85, 0.35);
+        curModel.position.set(0.80, 1.85, 0.35);
         if (btn) btn.classList.add('active');
         if (mobileBtn) mobileBtn.classList.add('active');
-        if (btnText) btnText.innerText = 'ส่ง Woodstock พักผ่อน';
+        if (btnText) btnText.innerText = isHalloween ? 'ส่งแม่มดน้อยพักผ่อน' : 'ส่ง Woodstock พักผ่อน';
       } else {
         woodstockTargetScale = 0.0;
         if (btn) btn.classList.remove('active');
         if (mobileBtn) mobileBtn.classList.remove('active');
         if (btnText) {
-          btnText.innerText = isHalloween ? 'เสก Woodstock ผีน้อย 👻' : 'เสก Woodstock ออกมา!';
+          btnText.innerText = isHalloween ? 'เสก Woodstock แม่มด 🧙‍♂️🧹' : 'เสก Woodstock ออกมา!';
         }
       }
     };
 
-    // YouTube Audio Player Controller (Linus and Lucy)
+    // YouTube Audio Player Controller (Normal: Linus and Lucy | Halloween: Great Pumpkin Waltz)
     let ytPlayer = null;
     let isMusicPlaying = false;
+    let userExplicitlyPaused = false;
+    let currentVideoId = 'XWnEj9YwKVY';
 
     window.onYouTubeIframeAPIReady = function() {
       ytPlayer = new YT.Player('yt-player-container', {
         height: '0',
         width: '0',
-        videoId: 'XWnEj9YwKVY',
+        videoId: currentVideoId,
         playerVars: {
           autoplay: 1,
           loop: 1,
-          playlist: 'XWnEj9YwKVY',
+          playlist: currentVideoId,
           playsinline: 1,
         },
         events: {
           onReady: (event) => {
-            event.target.playVideo();
+            try {
+              event.target.playVideo();
+            } catch (e) {}
           },
           onStateChange: (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
               updateMusicUI(true);
-            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+            } else if (event.data === YT.PlayerState.PAUSED) {
               updateMusicUI(false);
+            } else if (event.data === YT.PlayerState.ENDED) {
+              // Seamless infinite loop of currently active track
+              try {
+                ytPlayer.seekTo(0);
+                ytPlayer.playVideo();
+              } catch (e) {}
             }
           }
         }
@@ -1758,14 +1965,56 @@
       }
     }
 
+    function switchMusicTrack(isHalloweenMode) {
+      const nextVideoId = isHalloweenMode ? 'uINn4mkqL0M' : 'XWnEj9YwKVY';
+      if (currentVideoId === nextVideoId) return;
+      currentVideoId = nextVideoId;
+
+      const title = isHalloweenMode ? 'The Great Pumpkin Waltz 🎃' : 'Linus and Lucy 🎹';
+      const badge = isHalloweenMode ? 'Vince Guaraldi Trio • Halloween' : 'Vince Guaraldi Trio • Peanuts';
+      const artSrc = isHalloweenMode ? 'vampire_ref2.png' : 'snoopy_avatar.png';
+
+      const titleEl = document.querySelector('.music-title');
+      const badgeEl = document.querySelector('.music-badge');
+      const artEl = document.getElementById('vinyl-art-img');
+      const widgetEl = document.querySelector('.music-widget');
+
+      if (titleEl) titleEl.innerText = title;
+      if (badgeEl) badgeEl.innerText = badge;
+      if (artEl) artEl.src = artSrc;
+      if (widgetEl) widgetEl.setAttribute('title', `${title} (คลิกเพื่อเล่น/หยุดเพลง)`);
+
+      if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+        try {
+          if (isMusicPlaying || !userExplicitlyPaused) {
+            ytPlayer.loadVideoById({
+              videoId: nextVideoId,
+              startSeconds: 0
+            });
+            ytPlayer.unMute();
+            updateMusicUI(true);
+          } else {
+            ytPlayer.cueVideoById({
+              videoId: nextVideoId,
+              startSeconds: 0
+            });
+          }
+        } catch (e) {
+          console.warn('Track switch error:', e);
+        }
+      }
+    }
+
     window.toggleMusic = function() {
       if (!ytPlayer) return;
       try {
         const state = ytPlayer.getPlayerState();
         if (state === YT.PlayerState.PLAYING) {
           ytPlayer.pauseVideo();
+          userExplicitlyPaused = true;
           updateMusicUI(false);
         } else {
+          userExplicitlyPaused = false;
           ytPlayer.unMute();
           ytPlayer.playVideo();
           updateMusicUI(true);
@@ -1778,7 +2027,7 @@
     // Auto-unmute & play on first user interaction
     function setupAutoplayGesture() {
       const triggerPlay = () => {
-        if (ytPlayer && typeof ytPlayer.playVideo === 'function' && !isMusicPlaying) {
+        if (ytPlayer && typeof ytPlayer.playVideo === 'function' && !isMusicPlaying && !userExplicitlyPaused) {
           try {
             ytPlayer.unMute();
             ytPlayer.playVideo();
@@ -1800,28 +2049,46 @@
       requestAnimationFrame(animate);
       const delta = clock ? clock.getDelta() : 0;
       if (mixer) mixer.update(delta);
-      if (woodstockMixer) woodstockMixer.update(delta);
+      if (woodstockMixers.normal) woodstockMixers.normal.update(delta);
+      if (woodstockMixers.witch) woodstockMixers.witch.update(delta);
 
       // Woodstock flight animation
-      if (woodstockModel) {
+      const activeWoodstock = woodstockModels[activeWoodstockKey] || woodstockModels.normal;
+      if (activeWoodstock) {
         currentWoodstockScale += (woodstockTargetScale - currentWoodstockScale) * 0.12;
-        woodstockModel.scale.set(currentWoodstockScale, currentWoodstockScale, currentWoodstockScale);
+        activeWoodstock.scale.set(currentWoodstockScale, currentWoodstockScale, currentWoodstockScale);
         if (currentWoodstockScale < 0.005 && !woodstockSpawned) {
-          woodstockModel.visible = false;
+          activeWoodstock.visible = false;
         }
 
-        if (woodstockSpawned && woodstockModel.visible) {
+        if (woodstockSpawned && activeWoodstock.visible) {
           const time = clock.getElapsedTime();
-          const targetX = 0.80 + Math.sin(time * 1.5) * 0.12;
-          const targetY = 1.35 + Math.sin(time * 3.0) * 0.08 + Math.cos(time * 1.2) * 0.04;
-          const targetZ = 0.35 + Math.cos(time * 1.5) * 0.10;
+          if (activeWoodstockKey === 'witch') {
+            // Witch Broomstick Aerodynamic Swoops & Banking
+            const targetX = 0.85 + Math.sin(time * 1.6) * 0.16;
+            const targetY = 1.38 + Math.sin(time * 2.8) * 0.10 + Math.cos(time * 1.1) * 0.05;
+            const targetZ = 0.35 + Math.cos(time * 1.6) * 0.12;
 
-          woodstockModel.position.x += (targetX - woodstockModel.position.x) * 0.08;
-          woodstockModel.position.y += (targetY - woodstockModel.position.y) * 0.08;
-          woodstockModel.position.z += (targetZ - woodstockModel.position.z) * 0.08;
+            activeWoodstock.position.x += (targetX - activeWoodstock.position.x) * 0.08;
+            activeWoodstock.position.y += (targetY - activeWoodstock.position.y) * 0.08;
+            activeWoodstock.position.z += (targetZ - activeWoodstock.position.z) * 0.08;
 
-          woodstockModel.rotation.y = -0.35 - Math.sin(time * 1.5) * 0.22;
-          woodstockModel.rotation.z = Math.sin(time * 3.0) * 0.08;
+            activeWoodstock.rotation.y = -0.35 - Math.sin(time * 1.6) * 0.28;
+            activeWoodstock.rotation.z = Math.sin(time * 2.8) * 0.10;
+            activeWoodstock.rotation.x = Math.cos(time * 1.6) * 0.07;
+          } else {
+            // Standard Flapping Bird Hover
+            const targetX = 0.80 + Math.sin(time * 1.5) * 0.12;
+            const targetY = 1.35 + Math.sin(time * 3.0) * 0.08 + Math.cos(time * 1.2) * 0.04;
+            const targetZ = 0.35 + Math.cos(time * 1.5) * 0.10;
+
+            activeWoodstock.position.x += (targetX - activeWoodstock.position.x) * 0.08;
+            activeWoodstock.position.y += (targetY - activeWoodstock.position.y) * 0.08;
+            activeWoodstock.position.z += (targetZ - activeWoodstock.position.z) * 0.08;
+
+            activeWoodstock.rotation.y = -0.35 - Math.sin(time * 1.5) * 0.22;
+            activeWoodstock.rotation.z = Math.sin(time * 3.0) * 0.08;
+          }
         }
       }
 
